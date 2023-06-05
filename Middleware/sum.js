@@ -33,6 +33,70 @@ exports.OAmt = async (req, res, next) => {
         console.log(error);
     }
 }
+exports.OAmt2 = async (req, res, next) => {
+
+  try {
+      const orders = await Invest.aggregate(
+        [
+          {
+            $match: {
+              "Username": req.query.Username,
+              "Name": req.query.Type,        
+            }
+        },
+          {
+            $group:
+              {
+                _id: "$Username",
+                totalAmount: { $sum: { $multiply: [ "$Amt", "$No" ] } },
+                count: { $sum: 1 }
+              }
+          }
+        ]
+     )
+      console.log(orders);
+      res.status(200).json({
+          success: true,            
+          orders
+      })
+      next();
+  } catch (error) {
+      console.log(error);
+  }
+}
+exports.OAmt3 = async (req, res, next) => {
+
+  try {
+      const orders = await Invest.aggregate(
+        [
+          {
+            $match: {
+              "Username": req.query.Username,
+              "createdAt": {
+                "$lte": new Date(req.query.Date)
+              }        
+            }
+        },
+          {
+            $group:
+              {
+                _id: "$Username",
+                totalAmount: { $sum: { $multiply: [ "$Amt", "$No" ] } },
+                count: { $sum: 1 }
+              }
+          }
+        ]
+     )
+      console.log(orders);
+      res.status(200).json({
+          success: true,            
+          orders
+      })
+      next();
+  } catch (error) {
+      console.log(error);
+  }
+}
 
 
 exports.CAmt = async (req, res, next) => {
@@ -64,6 +128,69 @@ exports.CAmt = async (req, res, next) => {
       console.log(error);
   }
 }
+exports.CAmt2 = async (req, res, next) => {
+
+  try {
+      const orders = await Invest.aggregate(
+        [
+          {
+            $match: {
+              "Username": req.query.Username ,
+              "Name": req.query.Type,      
+            }
+        },
+          {
+            $group:
+              {
+                _id: "$Username",
+                totalAmount: { $sum: { $multiply: [ "$Ca", "$No" ] } },
+                count: { $sum: 1 }
+              }
+          }
+        ]
+     )
+      console.log(orders);
+      res.status(200).json({        
+          orders
+      })
+      next();
+  } catch (error) {
+      console.log(error);
+  }
+}
+
+exports.CAmt3 = async (req, res, next) => {
+
+  try {
+      const orders = await Invest.aggregate(
+        [
+          {
+            $match: {
+              "Username": req.query.Username ,
+              "createdAt": {
+                "$lte": new Date(req.query.Date)
+              }      
+            }
+        },
+          {
+            $group:
+              {
+                _id: "$Username",
+                totalAmount: { $sum: { $multiply: [ "$Ca", "$No" ] } },
+                count: { $sum: 1 }
+              }
+          }
+        ]
+     )
+      console.log(orders);
+      res.status(200).json({        
+          orders
+      })
+      next();
+  } catch (error) {
+      console.log(error);
+  }
+}
 
 exports.EAmt = async (req, res, next) => {
 
@@ -73,6 +200,68 @@ exports.EAmt = async (req, res, next) => {
           {
             $match: {
               "Username": req.query.Username        
+            }
+        },
+          {
+            $group:
+              {
+                _id: "$Username",
+                totalAmount: { $sum: "$Amt" },
+                count: { $sum: 1 }
+              }
+          }
+        ]
+     )
+      //console.log(orders);
+      res.status(200).json({     
+          orders
+      })
+      next();
+  } catch (error) {
+      console.log(error);
+  }
+}
+exports.EAmt2 = async (req, res, next) => {
+
+  try {
+      const orders = await Expense.aggregate(
+        [
+          {
+            $match: {
+              "Username": req.query.Username,
+              "Type": req.query.Type,        
+            }
+        },
+          {
+            $group:
+              {
+                _id: "$Username",
+                totalAmount: { $sum: "$Amt" },
+                count: { $sum: 1 }
+              }
+          }
+        ]
+     )
+      //console.log(orders);
+      res.status(200).json({     
+          orders
+      })
+      next();
+  } catch (error) {
+      console.log(error);
+  }
+}
+exports.EAmt3 = async (req, res, next) => {
+
+  try {
+      const orders = await Expense.aggregate(
+        [
+          {
+            $match: {
+              "Username": req.query.Username,
+              "createdAt": {
+                "$lte": new Date(req.query.Date)
+              }       
             }
         },
           {
@@ -125,7 +314,68 @@ exports.IAmt = async (req, res, next) => {
   }
 }
 
+exports.IAmt2 = async (req, res, next) => {
 
+  try {
+      const orders = await Income.aggregate(
+        [
+          {
+            $match: {
+              "Username": req.query.Username ,
+              "Type": req.query.Type       
+            }
+        },
+          {
+            $group:
+              {
+                _id: "$Username",
+                totalAmount: { $sum: "$Amt" },
+                count: { $sum: 1 }
+              }
+          }
+        ]
+     )
+      //console.log(orders);
+      res.status(200).json({         
+          orders
+      })
+      next();
+  } catch (error) {
+      console.log(error);
+  }
+}
+
+exports.IAmt3 = async (req, res, next) => {
+  try {
+    const orders = await Income.aggregate(
+      [
+        {
+          $match: {
+            "Username": req.query.Username ,
+            "createdAt": {
+              "$lte": new Date(req.query.Date)
+            }    
+          }
+      },
+        {
+          $group:
+            {
+              _id: "$Username",
+              totalAmount: { $sum: "$Amt" },
+              count: { $sum: 1 }
+            }
+        }
+      ]
+   )
+    //console.log(orders);
+    res.status(200).json({         
+        orders
+    })
+    next();
+} catch (error) {
+    console.log(error);
+}
+}
 
 exports.IDAmt = async (req, res, next) => {
 
@@ -263,3 +513,43 @@ exports.Stock = async (req, res, next) => {
             console.log(error);
         }
       }
+      exports.incDel = async (req, res, next) => {
+        console.log(req.body._id);
+        try {
+            const orders = await Income.deleteOne(  
+                    {
+                        "_id": req.body._id              
+                    }
+            );
+            console.log(orders);
+            res.status(200).json({     
+                orders
+            });
+    
+            //Blog.find({}).then(foundNotes =>res.json(foundNotes));
+            next();
+        } 
+        catch (error) {
+            console.log(error);
+        }
+    }
+    exports.expDel = async (req, res, next) => {
+      console.log(req.body._id);
+      try {
+          const orders = await Expense.deleteOne(  
+                  {
+                      "_id": req.body._id              
+                  }
+          );
+          console.log(orders);
+          res.status(200).json({     
+              orders
+          });
+  
+          //Blog.find({}).then(foundNotes =>res.json(foundNotes));
+          next();
+      } 
+      catch (error) {
+          console.log(error);
+      }
+  }

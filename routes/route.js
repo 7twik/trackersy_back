@@ -8,7 +8,7 @@ const Profile=require("../model/ModelProf");
 const {NseIndia}= require("stock-nse-india");
 const fetch = (...args) =>
   import('node-fetch').then(({ default: fetch }) => fetch(...args));
-  const {OAmt,CAmt,EAmt,IAmt,IDAmt,IDeAmt,Stock,Stockz, StockName,StockDet } = require("../Middleware/sum");
+  const {OAmt,CAmt,OAmt2,CAmt2,OAmt3,CAmt3,EAmt,EAmt2,EAmt3,IAmt,IAmt2,IAmt3,IDAmt,IDeAmt,Stock,Stockz, StockName,StockDet,incDel,expDel } = require("../Middleware/sum");
 
 const alpha = require('alphavantage')({ key: 'VPT36YI266UJIBM7' });
 const schedule= require('node-schedule');
@@ -49,83 +49,49 @@ router.route("/income").post((req,res)=>{ //note making
     });
 
 	});
-
-
+  router.route("/upincome").post((req,res)=>{
+    const Type=req.body.Type;
+	  const Desc=req.body.Desc;
+	  const Amt=req.body.Amt;
+    const Date=req.body.Date;
+    const id=req.body.id;
+    console.log(id);
+    Income.updateOne({"_id":id},{
+      Type: Type,
+      Desc: Desc,
+      Amt: Amt
+    }, function (err, raw) {
+      if (err) {
+        res.status(500);
+        res.send(err);
+      } else {
+        console.log(raw);
+        res.status(200);
+        res.send();
+      }
+  });
+});
+  
 
   ////////////////////misc dream code ///////////////////////////////
   router.get("/investOri", OAmt);
   router.get("/investCha", CAmt);
+  router.get("/investOri2", OAmt2);
+  router.get("/investCha2", CAmt2);
+  router.get("/investOri3", OAmt3);
+  router.get("/investCha3", CAmt3);
   router.get("/api/expense",EAmt);
+  router.get("/api/expense2",EAmt2);
+  router.get("/api/expense3",EAmt3);
   router.get("/api/income",IAmt);
+  router.get("/api/income2",IAmt2);
+  router.get("/api/income3",IAmt3);
   router.get("/api/incomett",IDAmt);
  // router.get("/api/stock",Stockz);
   router.get("/api/stockzz",StockName);
   router.get("/rtkQ",StockDet);
-
-  // async function getISS(){
-  //       var response= await fetch("http://localhost:8080/api/investtable");
-  //       var data =await response.json();
-  //       console.log(data);
-  //       data.forEach((item, index) => {
-  //         console.log(`${index} : ${item.Name}`)
-  //         var today = new Date();
-  //         var date=today.getDate()-4;
-  //         date=(date<1)?1:date;
-  //         var month=today.getMonth();
-  //         var year=today.getFullYear();
-
-  //         var st=(date<10)?year.toString()+"-"+month.toString()+"-0"+date.toString():year.toString()+"-"+month.toString()+"-"+date.toString();
-  //         console.log(st);
-  //         if (item.Type==="Stock")
-  //         {
-  //            const url="https://api.polygon.io/v2/aggs/ticker/"+item.Name+"/range/1/day/"+st+"/"+st+"?adjusted=true&sort=asc&limit=120&apiKey=v3bGcVCqLsdx3bmYTDy6uhPrHae_mh5h"
-  //            getD(url,item.Name);
-  //         }
-  //         else if(item.Type==="Crypto")
-  //         {
-  //           const url="https://api.polygon.io/v2/aggs/ticker/"+item.Name+"/range/1/day/"+st+"/"+st+"?adjusted=true&sort=asc&limit=120&apiKey=v3bGcVCqLsdx3bmYTDy6uhPrHae_mh5h"
-  //           getD(url,item.Name);
-  //         }
-  //         else if(item.Type==="Forex")
-  //         {
-  //           const url="https://api.polygon.io/v2/aggs/ticker/"+item.Name+"/range/1/day/"+st+"/"+st+"?adjusted=true&sort=asc&limit=120&apiKey=v3bGcVCqLsdx3bmYTDy6uhPrHae_mh5h"
-  //           getD(url,item.Name);
-  //         }
-  //         else if(item.Type==="Option")
-  //         {
-  //           const url="https://api.polygon.io/v2/aggs/ticker/"+item.Name+"/range/1/day/"+st+"/"+st+"?adjusted=true&sort=asc&limit=120&apiKey=v3bGcVCqLsdx3bmYTDy6uhPrHae_mh5h"
-  //           getD(url,item.Name);
-  //         }
-  //         else
-  //         {
-  //           const url="https://api.polygon.io/v2/aggs/ticker/"+item.Name+"/range/1/day/"+st+"/"+st+"?adjusted=true&sort=asc&limit=120&apiKey=v3bGcVCqLsdx3bmYTDy6uhPrHae_mh5h"
-  //           getD(url,item.Name);
-  //         }
-  //       })
-  // }
-  // async function getD(urldd,name)
-  // {
-  //       const response=await fetch(urldd);
-  //       const data = await response.json();
-  //       const tick= await data.results;
-  //       const ticker=await (tick)? tick[0]:0;
-  //       const resp=await ticker.o;
-  //       console.log("Lets start");
-  //       console.log(tick);
-  //       console.log(ticker);
-  //       console.log(resp);
-
-  //       //Profile.updateOne({Name:name}, {$set:{ Ca: resp }},{acknowledged:true});
-  //       if (resp)
-  //       {
-  //              Invest.updateMany({Name:name}, { $set: {Ca: resp*82} }, function(err, res) {
-  //               if (err) throw err;
-  //               else{
-  //               console.log(res);
-  //               }
-  //             });
-  //       }
-  // }
+  router.post("/api/expdel",expDel);
+  router.post("/api/incdel",incDel);
 
 
     ////// EXPENSE DATA///////////////////////////////////////////////////////////////////////////////////
@@ -151,18 +117,29 @@ router.route("/income").post((req,res)=>{ //note making
         console.log(newExp);
           newExp.save();
 
-          /////UPDATING THE PROFILE DB ///////////////////////////////////////
-          // Profile.updateOne({Username:Username}, {$inc:{ IncAmt: -Amt, ExpAmt:Amt }}, function (err, raw) {
-          //   if (err) {
-          //     res.status(500);
-          //     res.send(err);
-          //   } else {
-          //     console.log(raw);
-          //     res.status(200);
-          //     res.send();
-          //   }
-          // });
+     
         })
+        router.route("/upexpense").post((req,res)=>{
+          const Type=req.body.Type;
+          const Desc=req.body.Desc;
+          const Amt=req.body.Amt;
+          const id=req.body.id;
+          console.log(id);
+          Expense.updateOne({"_id":id},{
+            Type: Type,
+            Desc: Desc,
+            Amt: Amt
+          }, function (err, raw) {
+            if (err) {
+              res.status(500);
+              res.send(err);
+            } else {
+              console.log(raw);
+              res.status(200);
+              res.send();
+            }
+        });
+      });
 
 
 
@@ -291,6 +268,15 @@ router.route("/income").post((req,res)=>{ //note making
                         .then(foundNotes =>res.json(foundNotes));
 
               });
+              router.route("/investtable2").get((req,res)=>{
+
+                console.log(req.query.Username);
+                const name=req.query.Username;
+                const type=req.query.Type;
+                Invest.find({Username:name,Name:type})
+                    .then(foundNotes =>res.json(foundNotes));
+
+          });
               router.route("/api/investtable").get((req,res)=>{
 
                   Invest.find({},{
@@ -314,21 +300,16 @@ router.route("/income").post((req,res)=>{ //note making
                           .then(foundNotes => res.json(foundNotes));
 
               });
+              router.route("/incometable2").get((req,res)=>{
 
+                console.log(req.query.Username);
+                const name=req.query.Username;
+                const type=req.query.Type;
 
+                Income.find({Username:name,Type:type})
+                      .then(foundNotes => res.json(foundNotes));
 
-          //      // finding data for amounts table//////////////////////////////////////
-          //      router.route("/proftable").get((req,res)=>{
-
-          //       console.log(req.query.Username);
-          //       const name=req.query.Username;
-
-          //       Profile.find({Username:name})
-          //             .then(foundNotes => res.json(foundNotes));
-
-          // });
-
-
+          });
 
                // finding data for expense table//////////////////////////////////////
               router.route("/expensetable").get((req,res)=>{
@@ -339,6 +320,15 @@ router.route("/income").post((req,res)=>{ //note making
                 Expense.find({Username:name})
                       .then(foundNotes => res.json(foundNotes));
           });
+          router.route("/expensetable2").get((req,res)=>{
+
+            console.log(req.query.Username);
+            const name=req.query.Username;
+            const type=req.query.Type;
+
+            Expense.find({Username:name,Type:type})
+                  .then(foundNotes => res.json(foundNotes));
+      });
 
 
     module.exports = router;
