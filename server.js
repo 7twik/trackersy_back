@@ -24,13 +24,21 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(
-	cors({
-		origin: "https://trackersyv1.onrender.com",
-		methods: "GET,POST,PUT,DELETE",
-		credentials: true,
-	})
-);
+const corsOpts = {
+	origin: '*',
+  
+	methods: [
+	  'GET',
+	  'POST',
+	],
+  
+	allowedHeaders: [
+	  'Content-Type',
+	],
+  };
+  
+  app.use(cors(corsOpts));
+  
 //  app.use(cors()); //and this
 
 // app.get('/user/:id', function (req, res, next) {
